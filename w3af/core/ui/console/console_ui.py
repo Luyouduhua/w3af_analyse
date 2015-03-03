@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 console_ui.py
 
@@ -129,13 +130,13 @@ class ConsoleUI(object):
 
         return False
 
-    def sh(self, name='w3af', callback=None): # Cycle 在哪里？
+    def sh(self, name='w3af', callback=None):
         """
         Main cycle
         """
         try:
             if callback:
-                if hasattr(self, '_context'):# hasattr() 判定某实例是否存在特定属性  跟 if self._context 的区别？
+                if hasattr(self, '_context'):#hasattr() 判定某实例是否存在特定属性  跟 if self._context 的区别？
                     ctx = self._context
                 else:
                     ctx = None
@@ -162,7 +163,7 @@ class ConsoleUI(object):
         except KeyboardInterrupt:
             pass
 
-        if not hasattr(self, '_parent'): #默认不存在_parent
+        if not hasattr(self, '_parent'): #默认不存在 _parent
             try:
                 self._w3af.quit()
                 self._context.join()
@@ -181,7 +182,7 @@ class ConsoleUI(object):
 
     def _executePending(self):
         while (self._commands):
-            curCmd, self._commands = self._commands[0], self._commands[1:]#从self._commands[]中分离出[0]
+            curCmd, self._commands = self._commands[0], self._commands[1:]#从 self._commands[]中分离出[0]
             self._paste(curCmd)
             self._onEnter()
 
@@ -224,10 +225,10 @@ class ConsoleUI(object):
 
     def _handleKey(self, key): # 处理用户输入的命令
         try:
-            if key in self._handlers: #先处理特殊字符，例如各类热键、Ctrl+C等
+            if key in self._handlers: #先处理特殊字符，例如热键、Ctrl+C等
                 self._handlers[key]()
             else:
-                self._paste(key) # 一般指令
+                self._paste(key) # 处理一般字符
         except Exception, e:
             traceback.print_exc()  # TODO
 
@@ -273,10 +274,10 @@ class ConsoleUI(object):
         self._initPrompt()
         self._showPrompt()
 
-    def _execute(self):
+    def _execute(self): #命令执行主程序
         # term.writeln()
 
-        line = self._getLineStr()
+        line = self._getLineStr() # 获取命令字符串
         term.setRawInputMode(False)
         om.out.console('')
         if len(line) and not line.isspace():
@@ -317,9 +318,9 @@ class ConsoleUI(object):
                     self._context = menu
         term.setRawInputMode(True)
 
-    def _onEnter(self): # 输入完指令后，按回车时触发执行
-        self._execute()
-        self._initPrompt()
+    def _onEnter(self):     # 当接受到回车。执行当前语句
+        self._execute()     # 执行主体
+        self._initPrompt()  # term 格式化
         self._showPrompt()
 
     def _delWord(self):
@@ -452,11 +453,11 @@ class ConsoleUI(object):
         else:
             return result
 
-    def _paste(self, text): # 将用户输入的正常字符添加到 _line中，并刷新 term 显示
+    def _paste(self, text): # 将用户输入的正常字符添加到_line中，并刷新term显示
 
 #        term.savePosition()
         tail = self._line[self._position:] #初始 _line、_position均为 0
-        for c in text: #用户每敲击一个字符，添加到 _line 中
+        for c in text: #用户每敲击一个字符，添加到_line中
             self._line.insert(self._position, c)
             self._position += 1
 
