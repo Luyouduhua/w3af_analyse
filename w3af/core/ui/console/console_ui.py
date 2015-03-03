@@ -35,7 +35,7 @@ try:
     from w3af.core.ui.console.util import commonPrefix
     from w3af.core.ui.console.history import historyTable
     from w3af.core.ui.console.auto_update.auto_update import ConsoleUIUpdater
-    
+
     from w3af.core.data.constants.disclaimer import DISCLAIMER
     from w3af.core.data.db.startup_cfg import StartUpConfig
 
@@ -65,7 +65,7 @@ class ConsoleUI(object):
         self._trace = []
         self._upd_avail = False
 
-        self._handlers = {
+        self._handlers = { #定义接收到键盘输入与快捷键组合时的函数调用关系
             '\t': self._onTab,
             '\r': self._onEnter,
             term.KEY_BACKSPACE: self._onBackspace,
@@ -96,7 +96,7 @@ class ConsoleUI(object):
         # Core initialization
         self._w3af = w3afCore()
         self._w3af.plugins.set_plugins(['console'], 'output')
-        
+
     def __initFromParent(self, parent):
         self._context = parent._context
         self._w3af = parent._w3af
@@ -129,13 +129,13 @@ class ConsoleUI(object):
 
         return False
 
-    def sh(self, name='w3af', callback=None):
+    def sh(self, name='w3af', callback=None): # Cycle 在哪里？
         """
         Main cycle
         """
         try:
             if callback:
-                if hasattr(self, '_context'):
+                if hasattr(self, '_context'):# hasattr() 判定某实例是否存在特定属性  跟 if self._context 的区别？
                     ctx = self._context
                 else:
                     ctx = None
@@ -149,12 +149,12 @@ class ConsoleUI(object):
             self._active = True
             term.setRawInputMode(True)
 
-            self._executePending()
+            self._executePending() #?
 
-            while self._active:
+            while self._active:  # Cycle在这里
                 try:
-                    c = term.getch()
-                    self._handleKey(c)
+                    c = term.getch() # 获取输入命令
+                    self._handleKey(c) # 处理输入命令
                 except Exception, e:
                     om.out.console(str(e))
 
@@ -162,7 +162,7 @@ class ConsoleUI(object):
         except KeyboardInterrupt:
             pass
 
-        if not hasattr(self, '_parent'):
+        if not hasattr(self, '_parent'): #默认不存在_parent
             try:
                 self._w3af.quit()
                 self._context.join()
@@ -174,14 +174,14 @@ class ConsoleUI(object):
                 #     https://github.com/andresriancho/w3af/issues/148
                 #
                 # Since we don't want to show any tracebacks on this situation
-                # just "pass". 
+                # just "pass".
                 pass
-            
+
             return 0
 
     def _executePending(self):
         while (self._commands):
-            curCmd, self._commands = self._commands[0], self._commands[1:]
+            curCmd, self._commands = self._commands[0], self._commands[1:]#从self._commands[]中分离出[0]
             self._paste(curCmd)
             self._onEnter()
 
@@ -222,12 +222,12 @@ class ConsoleUI(object):
         path = self._context.get_path()
         self._history[path] = (hist, [])
 
-    def _handleKey(self, key):
+    def _handleKey(self, key): # 处理用户输入的命令
         try:
-            if key in self._handlers:
+            if key in self._handlers: #先处理特殊字符，例如各类热键、Ctrl+C等
                 self._handlers[key]()
             else:
-                self._paste(key)
+                self._paste(key) # 一般指令
         except Exception, e:
             traceback.print_exc()  # TODO
 
@@ -317,7 +317,7 @@ class ConsoleUI(object):
                     self._context = menu
         term.setRawInputMode(True)
 
-    def _onEnter(self):
+    def _onEnter(self): # 输入完指令后，按回车时触发执行
         self._execute()
         self._initPrompt()
         self._showPrompt()
@@ -346,7 +346,7 @@ class ConsoleUI(object):
         term.moveBack(self._position)
         self._position = 0
 
-    def _onTab(self):
+    def _onTab(self): # tab补完模块
         """
             Autocompletion logic is called here
         """
@@ -452,11 +452,11 @@ class ConsoleUI(object):
         else:
             return result
 
-    def _paste(self, text):
+    def _paste(self, text): # 将用户输入的正常字符添加到 _line中，并刷新 term 显示
 
 #        term.savePosition()
-        tail = self._line[self._position:]
-        for c in text:
+        tail = self._line[self._position:] #初始 _line、_position均为 0
+        for c in text: #用户每敲击一个字符，添加到 _line 中
             self._line.insert(self._position, c)
             self._position += 1
 
@@ -501,7 +501,7 @@ class ConsoleUI(object):
 #        term.restorePosition()
 
     def _random_message(self):
-        
+
         messages_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                      'exitmessages.txt')
         f = file(messages_file, 'r')
